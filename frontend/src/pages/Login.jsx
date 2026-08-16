@@ -8,7 +8,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, register } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -19,7 +19,9 @@ export default function Login() {
       await login(email, password);
       navigate('/products');
     } catch (err) {
-      setError(err.response?.data?.detail || 'Login failed. Check credentials.');
+      console.error('Login submit error:', err);
+      const msg = err.response?.data?.detail || err.message || 'Login failed. Check credentials.';
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -30,24 +32,19 @@ export default function Login() {
     setError('');
     const demoEmail = role === 'ADMIN' ? 'admin@scaleflow.io' : 'customer@scaleflow.io';
     const demoPass = 'password123';
+    const fullName = role === 'ADMIN' ? 'ScaleFlow Admin' : 'Demo Customer';
+
     try {
       await login(demoEmail, demoPass);
       navigate(role === 'ADMIN' ? '/admin' : '/products');
     } catch (err) {
-      // If demo user doesn't exist yet, register them
+      // If demo user login fails, try registering the user
       try {
-        const { register } = await import('../context/AuthContext');
-        // Register fallback
-        await api.post('/auth/register', {
-          email: demoEmail,
-          password: demoPass,
-          full_name: role === 'ADMIN' ? 'ScaleFlow Admin' : 'Demo Customer',
-          role: role
-        });
-        await login(demoEmail, demoPass);
+        await register(demoEmail, demoPass, fullName, role);
         navigate(role === 'ADMIN' ? '/admin' : '/products');
       } catch (regErr) {
-        setError('Demo authentication failed.');
+        console.error('Demo registration fallback error:', regErr);
+        setError(regErr.response?.data?.detail || 'Demo login failed.');
       }
     } finally {
       setLoading(false);
@@ -116,17 +113,19 @@ export default function Login() {
 
         {/* Quick Demo Logins */}
         <div className="pt-4 border-t border-slate-800 space-y-3">
-          <div className="text-center text-xs text-slate-400 font-mono">QUICK DEMO ACCESSS</div>
+          <div className="text-center text-xs text-slate-400 font-mono">QUICK DEMO ACCESS</div>
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => handleDemoLogin('CUSTOMER')}
-              className="py-2 px-3 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-medium text-sky-400 rounded-xl transition-all text-center"
+              disabled={loading}
+              className="py-2.5 px-3 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-semibold text-sky-400 rounded-xl transition-all text-center disabled:opacity-50"
             >
               Customer Demo
             </button>
             <button
               onClick={() => handleDemoLogin('ADMIN')}
-              className="py-2 px-3 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-medium text-amber-400 rounded-xl transition-all text-center"
+              disabled={loading}
+              className="py-2.5 px-3 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-semibold text-amber-400 rounded-xl transition-all text-center disabled:opacity-50"
             >
               Admin Demo
             </button>
