@@ -14,9 +14,60 @@ export const AuthProvider = ({ children }) => {
     return storedCart ? JSON.parse(storedCart) : [];
   });
 
+  // Developer Mode Toggle (Commerce Mode vs Engineering Telemetry Mode)
+  const [devMode, setDevMode] = useState(() => {
+    return localStorage.getItem('scaleflow_devmode') === 'true';
+  });
+
+  // Dark Mode Toggle (Light Mode is DEFAULT)
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem('scaleflow_theme') === 'dark';
+  });
+
+  // Notifications State
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
   useEffect(() => {
     localStorage.setItem('scaleflow_cart', JSON.stringify(cart));
   }, [cart]);
+
+  useEffect(() => {
+    localStorage.setItem('scaleflow_devmode', devMode ? 'true' : 'false');
+  }, [devMode]);
+
+  useEffect(() => {
+    localStorage.setItem('scaleflow_theme', darkMode ? 'dark' : 'light');
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
+
+  // Fetch backend notifications when user is logged in
+  const fetchNotifications = async () => {
+    if (!token) return;
+    try {
+      const resp = await api.get('/notifications');
+      setNotifications(resp.data);
+      const unread = resp.data.filter((n) => !n.read).length;
+      setUnreadCount(unread);
+    } catch (err) {
+      // Non-blocking fallback
+    }
+  };
+
+  useEffect(() => {
+    if (token) {
+      fetchNotifications();
+      const interval = setInterval(fetchNotifications, 10000);
+      return () => clearInterval(interval);
+    }
+  }, [token]);
+
+  const toggleDevMode = () => setDevMode((prev) => !prev);
+  const toggleDarkMode = () => setDarkMode((prev) => !prev);
 
   const login = async (email, password) => {
     const resp = await api.post('/auth/login', { email, password });
@@ -27,6 +78,7 @@ export const AuthProvider = ({ children }) => {
     setUser(userData);
     localStorage.setItem('scaleflow_token', access_token);
     localStorage.setItem('scaleflow_user', JSON.stringify(userData));
+    fetchNotifications();
     return userData;
   };
 
@@ -39,6 +91,7 @@ export const AuthProvider = ({ children }) => {
     setUser(userData);
     localStorage.setItem('scaleflow_token', access_token);
     localStorage.setItem('scaleflow_user', JSON.stringify(userData));
+    fetchNotifications();
     return userData;
   };
 
@@ -46,6 +99,8 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     setUser(null);
     setCart([]);
+    setNotifications([]);
+    setUnreadCount(0);
     localStorage.removeItem('scaleflow_token');
     localStorage.removeItem('scaleflow_user');
     localStorage.removeItem('scaleflow_cart');
@@ -85,6 +140,12 @@ export const AuthProvider = ({ children }) => {
         user,
         token,
         cart,
+        devMode,
+        darkMode,
+        notifications,
+        unreadCount,
+        toggleDevMode,
+        toggleDarkMode,
         login,
         register,
         logout,
@@ -92,6 +153,7 @@ export const AuthProvider = ({ children }) => {
         removeFromCart,
         updateCartQuantity,
         clearCart,
+        fetchNotifications,
       }}
     >
       {children}
