@@ -1,0 +1,63 @@
+name: ScaleFlow CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: scaleflow
+          POSTGRES_PASSWORD: scaleflow_pass
+          POSTGRES_DB: scaleflow_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Pytest Suite (Unit, Concurrency, Idempotency & Saga Tests)
+        env:
+          DEV_MODE: in_memory
+          POSTGRES_HOST: localhost
+          REDIS_HOST: localhost
+        run: |
+          pytest tests/ -v
+
+      - name: Set up Node.js for Frontend
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build Frontend React Vite Bundle
+        run: |
+          cd frontend
+          npm install
+          npm run build

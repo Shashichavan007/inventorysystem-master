@@ -1,0 +1,59 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 1,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "title": "ScaleFlow Gateway RPS",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "rate(scaleflow_gateway_requests_total[1m])",
+          "legendFormat": "{{path_group}} ({{status_code}})"
+        }
+      ]
+    },
+    {
+      "title": "Kafka Events Processed Rate",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "rate(scaleflow_kafka_events_total[1m])",
+          "legendFormat": "{{event_type}}"
+        }
+      ]
+    },
+    {
+      "title": "Dead Letter Queue (DLQ) Count",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "expr": "scaleflow_dlq_messages_count"
+        }
+      ]
+    },
+    {
+      "title": "P95 Request Latency (seconds)",
+      "type": "timeseries",
+      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, rate(scaleflow_gateway_request_duration_seconds_bucket[1m]))"
+        }
+      ]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["scaleflow", "microservices"],
+  "time": { "from": "now-15m", "to": "now" },
+  "title": "ScaleFlow Distributed Observability"
+}
