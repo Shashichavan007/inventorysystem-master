@@ -165,11 +165,37 @@ export default function ProductDetails() {
           </div>
 
           {devMode && (
-            <div className="p-4 rounded-xl bg-indigo-950 text-indigo-200 text-xs font-mono space-y-1">
-              <div className="font-bold text-indigo-300">Developer Telemetry</div>
-              <div>Product ID: {product.id}</div>
-              <div>SKU: {product.sku}</div>
-              <div>Category ID: {product.category_id}</div>
+            <div className="p-5 rounded-2xl bg-slate-950 border-2 border-indigo-500/40 text-indigo-200 text-xs font-mono space-y-3 shadow-lg">
+              <div className="flex items-center justify-between border-b border-indigo-900/60 pb-2">
+                <div className="flex items-center space-x-2 text-indigo-300 font-bold">
+                  <Zap className="w-4 h-4 text-indigo-400" />
+                  <span>DEVELOPER TELEMETRY SPECS</span>
+                </div>
+                <span className="px-2 py-0.5 rounded bg-indigo-900/60 text-[10px] text-indigo-300">
+                  GET /products/{product.id}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-[11px]">
+                <div className="p-2 rounded-lg bg-indigo-950/80 border border-indigo-900/40">
+                  <span className="text-slate-400 block text-[10px]">CACHE LAYER</span>
+                  <span className="text-emerald-400 font-bold">Redis HIT product:{product.id}</span>
+                </div>
+                <div className="p-2 rounded-lg bg-indigo-950/80 border border-indigo-900/40">
+                  <span className="text-slate-400 block text-[10px]">LOCK TYPE</span>
+                  <span className="text-sky-400 font-bold">SQL FOR UPDATE</span>
+                </div>
+              </div>
+
+              <details className="text-[11px] group">
+                <summary className="cursor-pointer font-bold text-indigo-300 hover:text-white flex items-center justify-between">
+                  <span>Raw API Response Payload</span>
+                  <span className="text-[10px] text-slate-400 group-open:hidden">[Expand]</span>
+                </summary>
+                <pre className="mt-2 p-3 bg-slate-900 rounded-xl border border-slate-800 text-sky-300 overflow-x-auto text-[10px]">
+                  {JSON.stringify(product, null, 2)}
+                </pre>
+              </details>
             </div>
           )}
 

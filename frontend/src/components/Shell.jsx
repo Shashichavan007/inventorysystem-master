@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import CommandPalette from './CommandPalette';
 import NotificationsDrawer from './NotificationsDrawer';
+import DeveloperConsoleDock from './DeveloperConsoleDock';
 import {
   Cpu, ShoppingBag, Activity, Shield, Server, Sliders, AlertOctagon, BarChart2,
   Code, ShoppingCart, Search, Bell, Sun, Moon, LogOut, ChevronRight, User, Menu, X, Check, Terminal
@@ -150,33 +151,35 @@ export default function Shell({ children }) {
               })}
             </div>
 
-            {/* Operations Group */}
-            <div className="space-y-1">
-              <div className="px-3 text-[11px] font-bold font-mono text-slate-400 uppercase tracking-wider mb-2">
-                Operations & Admin
+            {/* Operations Group (Admin or DevMode only) */}
+            {(user?.role === 'ADMIN' || devMode) && (
+              <div className="space-y-1">
+                <div className="px-3 text-[11px] font-bold font-mono text-slate-400 uppercase tracking-wider mb-2">
+                  Operations & Admin
+                </div>
+                {navOperations.map((item) => {
+                  const Icon = item.icon;
+                  const active = isActive(item.path);
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      onClick={() => setIsMobileSidebarOpen(false)}
+                      className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
+                        active
+                          ? 'bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 font-bold'
+                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-2.5">
+                        <Icon className={`w-4 h-4 ${active ? 'text-brand-600 dark:text-brand-400' : 'text-slate-400'}`} />
+                        <span>{item.title}</span>
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
-              {navOperations.map((item) => {
-                const Icon = item.icon;
-                const active = isActive(item.path);
-                return (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    onClick={() => setIsMobileSidebarOpen(false)}
-                    className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
-                      active
-                        ? 'bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 font-bold'
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
-                    }`}
-                  >
-                    <div className="flex items-center space-x-2.5">
-                      <Icon className={`w-4 h-4 ${active ? 'text-brand-600 dark:text-brand-400' : 'text-slate-400'}`} />
-                      <span>{item.title}</span>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
+            )}
 
           </div>
 
@@ -327,9 +330,10 @@ export default function Shell({ children }) {
 
       </div>
 
-      {/* Global Command Palette & Notifications Drawer */}
+      {/* Global Command Palette, Notifications Drawer & Developer Telemetry Dock */}
       <CommandPalette isOpen={isCommandPaletteOpen} onClose={() => setIsCommandPaletteOpen(false)} />
       <NotificationsDrawer isOpen={isNotificationsOpen} onClose={() => setIsNotificationsOpen(false)} />
+      <DeveloperConsoleDock />
 
     </div>
   );

@@ -1,7 +1,9 @@
 import os
+from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
+    model_config = ConfigDict(case_sensitive=True)
     PROJECT_NAME: str = "ScaleFlow"
     DEV_MODE: str = os.getenv("DEV_MODE", "false").lower()  # "true", "false", or "in_memory"
     
@@ -43,7 +45,5 @@ class Settings(BaseSettings):
     NOTIFICATION_SERVICE_URL: str = os.getenv("NOTIFICATION_SERVICE_URL", "http://localhost:8005")
     ANALYTICS_SERVICE_URL: str = os.getenv("ANALYTICS_SERVICE_URL", "http://localhost:8006")
 
-    class Config:
-        case_sensitive = True
 
 settings = Settings()

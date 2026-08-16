@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { ShoppingBag, ShoppingCart, Activity, Shield, LogOut, User, Cpu } from 'lucide-react';
 
 export default function Navbar() {
-  const { user, cart, logout } = useAuth();
+  const { user, cart, logout, devMode } = useAuth();
   const navigate = useNavigate();
 
   const totalCartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -44,10 +44,12 @@ export default function Navbar() {
               </Link>
             )}
 
-            <Link to="/admin" className="flex items-center space-x-2 text-sm font-medium text-slate-300 hover:text-sky-400 transition-colors">
-              <Shield className="w-4 h-4 text-amber-400" />
-              <span>Admin & Observability</span>
-            </Link>
+            {(user?.role === 'ADMIN' || devMode) && (
+              <Link to="/admin" className="flex items-center space-x-2 text-sm font-medium text-slate-300 hover:text-sky-400 transition-colors">
+                <Shield className="w-4 h-4 text-amber-400" />
+                <span>Admin & Observability</span>
+              </Link>
+            )}
           </div>
 
           {/* Right Action Controls */}

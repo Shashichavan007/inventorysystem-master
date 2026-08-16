@@ -245,6 +245,42 @@ export default function Orders() {
                   </div>
                 </div>
 
+                {/* Developer Mode Payload Inspector */}
+                {devMode && (
+                  <div className="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-3">
+                    <div className="p-4 rounded-2xl bg-slate-950 border-2 border-indigo-500/40 text-indigo-200 text-xs font-mono space-y-3">
+                      <div className="flex items-center justify-between border-b border-indigo-900/60 pb-2">
+                        <span className="font-bold text-indigo-300 flex items-center space-x-2">
+                          <Cpu className="w-4 h-4 text-indigo-400" />
+                          <span>KAFKA EVENT PAYLOAD INSPECTOR</span>
+                        </span>
+                        <span className="text-[10px] text-slate-400">Topic: scaleflow.orders</span>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 text-[11px]">
+                        <div className="p-2 rounded bg-indigo-950/80 border border-indigo-900/40">
+                          <span className="text-slate-400 block text-[10px]">CORRELATION ID</span>
+                          <span className="text-sky-300 font-bold truncate block">{selectedOrder.correlation_id}</span>
+                        </div>
+                        <div className="p-2 rounded bg-indigo-950/80 border border-indigo-900/40">
+                          <span className="text-slate-400 block text-[10px]">WEBSOCKET CHANNEL</span>
+                          <span className="text-emerald-400 font-bold font-mono">/ws/orders/{selectedOrder.id}</span>
+                        </div>
+                      </div>
+
+                      <details className="text-[11px] group">
+                        <summary className="cursor-pointer font-bold text-indigo-300 hover:text-white flex items-center justify-between">
+                          <span>Raw Order JSON Schema</span>
+                          <span className="text-[10px] text-slate-400 group-open:hidden">[Expand]</span>
+                        </summary>
+                        <pre className="mt-2 p-3 bg-slate-900 rounded-xl border border-slate-800 text-sky-300 overflow-x-auto text-[10px]">
+                          {JSON.stringify(selectedOrder, null, 2)}
+                        </pre>
+                      </details>
+                    </div>
+                  </div>
+                )}
+
               </div>
 
             </div>
